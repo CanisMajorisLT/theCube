@@ -3,7 +3,8 @@ var CubeInteraction = require('../interaction/cubeInteraction');
 utils = require('./../utils');
 var makeDiv = utils.makeDiv;
 
-
+/**
+ * Implements 3D cubes logic in 2D. Uses mostly the same API as cube3D*/
 var CubeFlat = module.exports = function (height, width) {
     this.height = height;
     this.width = width;

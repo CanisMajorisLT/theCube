@@ -1,5 +1,5 @@
 var CubeFlat = require('./cubes/cubeFlat');
-var Cube3D = require('./cubes/cubeChromeFF');
+var Cube3D = require('./cubes/cube3D');
 
 /**
  * This function creates a cube compatible with browser that the user is currently browsing on*/
