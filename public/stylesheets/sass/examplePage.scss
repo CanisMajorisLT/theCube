@@ -1,0 +1,57 @@
+$left-side-panel-width: 250px;
+
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-y: hidden;
+}
+
+html, body, #react-container, .components-wrap {
+  height: 100%;
+}
+
+.menu {
+  font-size: 20px;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: $left-side-panel-width;
+  height: 100%;
+  background-color: #03A9F4;
+
+  div {
+    margin: 20px 5px 0 5px
+  }
+  .active {
+    color: #fff
+  }
+}
+
+.examples-container {
+  font-family: 'Roboto Condensed', sans-serif;
+  padding: 10px 15px 10px 15px;
+  position: relative;
+  width: calc(100% - #{$left-side-panel-width});
+  height: 100%;
+  background-color: #fff;
+  display: inline-block;
+  overflow-x: hidden;
+}
+
+#cube-container {
+  margin-top: 30px;
+  .perspective-wrap, .cube-flat {
+    margin: 45px auto;
+  }
+  h3 {
+    margin-top: 50px;
+  }
+
+}
+
+.explanation, .cube-container-text-body, .bottomText {
+  margin: 0 15px 0 15px;
+}

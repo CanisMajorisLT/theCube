@@ -1,0 +1,18 @@
+var CubeFlat = require('./cubes/cubeFlat');
+var Cube3D = require('./cubes/cubeChromeFF');
+
+/**
+ * This function creates a cube compatible with browser that the user is currently browsing on*/
+module.exports = function createNewCube(height, width, length) {
+    var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+    if (isIE) {
+        // flat cube can't have length dimesnion
+        return new CubeFlat(height, width)
+    }
+    else {
+        return new Cube3D(height, width, length)
+    }
+
+};
+
+

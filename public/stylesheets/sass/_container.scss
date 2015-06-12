@@ -1,0 +1,104 @@
+* {
+  box-sizing: border-box;
+}
+
+.playground, .playground2, .playground3 {
+  position: absolute;
+  top: 220px;
+  left: 15%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.playground2 {
+  left: 30%;
+}
+
+.playground3 {
+  left: 62%;
+
+}
+
+.perspective-wrap {
+  perspective: 900px;
+  //perspective-origin: 50% 100px;
+}
+
+.cube {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.cube div {
+  //border: 1px solid #000000;
+  //position: absolute;
+}
+
+.back {
+  background: url(http://lorempixel.com/320/320/)
+
+}
+
+.right {
+  background: url(http://placehold.it/320x320)
+
+}
+
+.left {
+  background: url(http://dummyimage.com/320x320/000/fff)
+
+}
+
+/*.top {
+  background: url(http://lorempixel.com/320/320/)
+
+}*/
+
+/*.bottom {
+  background: url(http://lorempixel.com/320/320/)
+
+}*/
+
+.front {
+  background: url(https://placekitten.com/g/320/320)
+}
+
+
+
+
+
+
+
+
+
+.cube2 div {
+  //border: 1px solid;
+}
+
+.back2 {
+  background: url(http://dummyimage.com/320x320/000/fff)
+
+}
+
+.right2 {
+  background: url(http://dummyimage.com/320x320/1fd100/ffe)
+
+}
+
+.left2 {
+  background: url(http://placehold.it/320x320)
+
+}
+
+/*.top {
+  background: url(http://lorempixel.com/320/320/)
+
+}*/
+
+/*.bottom {
+  background: url(http://lorempixel.com/320/320/)
+
+}*/
+
+.front2 {
+  background: url(http://lorempixel.com/320/320/)
+}
