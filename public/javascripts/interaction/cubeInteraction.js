@@ -7,6 +7,8 @@ var CubeInteraction = module.exports = function (cube) {
     this.autoplayInProgres = false; // if true user interaction such as wheel/swipe is disabled;
     this.autoplayBlueprint = {};
 
+    this.swipeRotate = {initialized: false}
+
 };
 
 CubeInteraction.prototype.addPauseOnUserInactivity = function () {
@@ -112,53 +114,21 @@ CubeInteraction.prototype.__startIntervalRotation = function (direction, times, 
 /**
  * Adds mobile interaction to cube, user can rotate cube to any of the 4 [or ones that are implemented by cube API]
  *  sides by swiping*/
-CubeInteraction.prototype.addSwipeRotate = function () {
-    var startX;
-    var startY;
-    this.cube.shape.addEventListener('touchstart', function (touchEvent) {
-        if (this.autoplayInProgres) {
-            return
-        }
-        startX = touchEvent.touches[0].clientX;
-        startY = touchEvent.touches[0].clientY;
-    });
+CubeInteraction.prototype.addSwipeRotate = function (direction) {
+    var oppositeDirections = {leftRight: 'upDown', upDown: 'leftRight'};
+    direction = direction || 'leftRight';
+    this.swipeRotate[direction] = true;
 
-    this.cube.shape.addEventListener('touchmove', function (touchEvent) {
-        if (!startX || !startY) {
-            return
-        }
+    if (this.cube.hasOwnProperty('perspectiveWrap')) {
+        // for 3D cube allow only one of the directions to be enabled
+        this.swipeRotate[oppositeDirections[direction]] = false;
+    }
 
-        var diffX = startX - touchEvent.touches[0].clientX;
-        var diffY = startY - touchEvent.touches[0].clientY;
-
-
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            console.log('touchmove X');
-            if (diffX > 0) {
-                this.cube.rotateLeft()
-            }
-            else {
-                this.cube.rotateRight()
-            }
-        }
-        else {
-            console.log('touchmove Y');
-
-            if (diffY > 0) {
-                this.cube.rotateUp()
-            }
-            else {
-                this.cube.rotateDown()
-            }
-        }
-
-        // set to null, so only touchmove is ignored after it fires once
-        startX = null;
-        startY = null;
-
-    }.bind(this))
-
-
+    this.swipeRotate[direction] = true;
+    if (!this.swipeRotate.initialized) {
+        swipeRotate.call(this);
+        this.swipeRotate.initialized = true;
+    }
 };
 
 /**
@@ -201,32 +171,77 @@ CubeInteraction.prototype.addMiddleScrollRotate = function (direction) {
 };
 
 
+var swipeRotate = function (direction) {
+//TODO ideti ri cia specifikavima i kuria puse, nes i visur leidziant - isibuginti gali del userio scrollinimo
+    var startX;
+    var startY;
+    this.cube.shape.addEventListener('touchstart', function (touchEvent) {
+        if (this.autoplayInProgres) {
+            return
+        }
+        startX = touchEvent.touches[0].clientX;
+        startY = touchEvent.touches[0].clientY;
+    });
+
+    this.cube.shape.addEventListener('touchmove', function (touchEvent) {
+        if (!startX || !startY) {
+            return
+        }
+
+        var diffX = startX - touchEvent.touches[0].clientX;
+        var diffY = startY - touchEvent.touches[0].clientY;
 
 
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (this.swipeRotate.leftRight) {
+                if (diffX > 0) {
+                    this.cube.rotateLeft()
+                }
+                else {
+                    this.cube.rotateRight()
+                }
+            }
+        }
+        else {
+            if (this.swipeRotate.upDown) {
+                if (diffY > 0) {
+                    this.cube.rotateUp()
+                }
+                else {
+                    this.cube.rotateDown()
+                }
+            }
+        }
 
+        // set to null, so only touchmove is ignored after it fires once
+        startX = null;
+        startY = null;
+
+    }.bind(this))
+};
 
 
 // NOT finished, ability to rotate cube by hovering over it
 /*CubeInteraction.prototype.__calculateSpinSideAndSpin = function (mouse) {
-    if (mouse.offsetX >= (this.cube.width / 2)) {
-        return this.cube.rotateLeft()
-    }
-    else {
-        return this.cube.rotateRight()
-    }
-};
+ if (mouse.offsetX >= (this.cube.width / 2)) {
+ return this.cube.rotateLeft()
+ }
+ else {
+ return this.cube.rotateRight()
+ }
+ };
 
-CubeInteraction.prototype.addHoverSpin = function () {
-    var debouncedSpin = utils.debounce.call(this, this.__calculateSpinSideAndSpin, 200);
-    this.cube.shape.addEventListener('mousemove', debouncedSpin)
-};
+ CubeInteraction.prototype.addHoverSpin = function () {
+ var debouncedSpin = utils.debounce.call(this, this.__calculateSpinSideAndSpin, 200);
+ this.cube.shape.addEventListener('mousemove', debouncedSpin)
+ };
 
 
-var calculateSide = function calculateSide(mouse, cubeWidth) {
-    if (mouse.offsetX >= (cubeWidth / 2)) {
-        return 'spinRight'
-    }
-    else {
-        return 'spinLeft'
-    }
-};*/
+ var calculateSide = function calculateSide(mouse, cubeWidth) {
+ if (mouse.offsetX >= (cubeWidth / 2)) {
+ return 'spinRight'
+ }
+ else {
+ return 'spinLeft'
+ }
+ };*/

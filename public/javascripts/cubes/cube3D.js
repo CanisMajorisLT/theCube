@@ -14,10 +14,12 @@ var Cube = module.exports = function (height, width, length) {
     this.width = width;
     this.length = length || height;
 
-    Object.defineProperty(this, 'cube', {get: function () {
-    // cube property is the one that will be appended to div, this cube has perspective, others might not, so need getter
-        return this.perspectiveWrap
-    }});
+    Object.defineProperty(this, 'cube', {
+        get: function () {
+            // cube property is the one that will be appended to div, this cube has perspective, others might not, so need getter
+            return this.perspectiveWrap
+        }
+    });
 
     this.perspectiveWrap = makeDiv({
         transition: 'all 200ms linear',
@@ -27,7 +29,7 @@ var Cube = module.exports = function (height, width, length) {
     }, 'perspective-wrap');
 
     this.shape = makeDiv({
-        transform: 'rotateX(0) rotateY(0)',
+        transform: 'rotateX(0) rotateY(0) rotateZ(0)',
         transition: 'all 450ms linear',
         position: 'relative',
         transformStyle: 'preserve-3d',
@@ -37,6 +39,7 @@ var Cube = module.exports = function (height, width, length) {
 
     this.rotationDegreesY = 0;
     this.rotationDegreesX = 0;
+    this.rotationDegreesZ = 0;
     this.spinSpeed = 450;
     this.zoomOutValue = 0.8;
 
@@ -44,8 +47,6 @@ var Cube = module.exports = function (height, width, length) {
     this.currentPosition = 'still'; // spinning
 
     this.interaction = new CubeInteraction(this);
-
-
 
 
     this.__initialize()
@@ -142,7 +143,7 @@ Cube.prototype.zoomIn = function () {
  * Rotates cube by updating its containers RotateX and RotateY values*/
 Cube.prototype.__rotate = function () {
     this.frontFaceDeactivate();
-    var transform = 'rotateX(' + this.rotationDegreesX + 'deg) rotateY(' + this.rotationDegreesY + 'deg)';
+    var transform = 'rotateX(' + this.rotationDegreesX + 'deg) rotateY(' + this.rotationDegreesY + 'deg) rotateZ(' + this.rotationDegreesZ + 'deg)';
     var timeoutVal = this.currentPosition === 'spinning' ? 20 : 100;
     if (this.currentPosition === 'still') this.zoomOut();
     setTimeout(function () {
@@ -153,14 +154,59 @@ Cube.prototype.__rotate = function () {
 
 };
 
+var isTimeForZ = function (x) {
+    x = Math.abs(x / 90);
+    if (x === 0) return false;
+    else if (x === 1) return true;
+    while (x > 0) {
+        x = x - 2;
+        if (x === 1) return true;
+        else if (x <= 0) return false
+    }
+
+};
+
+/*console.log(isTimeForZ(0) === false);
+ console.log(isTimeForZ(90) === true);
+ console.log(isTimeForZ(180) === false);
+ console.log(isTimeForZ(270) === true);
+ console.log(isTimeForZ(360) === false);
+ console.log(isTimeForZ(450) === true);
+ console.log(isTimeForZ(540) === false);
+ console.log(isTimeForZ(630) === true);
+ console.log(isTimeForZ(720) === false);
+ console.log(isTimeForZ(810) === true);
+ console.log(isTimeForZ(900) === false);
+ console.log(isTimeForZ(990) === true);
+ console.log(isTimeForZ(1080) === false);*/
+
+
 Cube.prototype.rotateLeft = function () {
-    this.rotationDegreesY -= 90;
-    this.__rotate()
+    if (isTimeForZ(this.rotationDegreesX)) {
+        this.rotationDegreesZ -= 90;
+        console.log('minus z', this.rotationDegreesZ);
+        this.__rotate()
+
+    }
+    else {
+        this.rotationDegreesY -= 90;
+        this.__rotate()
+    }
+
 };
 
 Cube.prototype.rotateRight = function () {
-    this.rotationDegreesY += 90;
-    this.__rotate()
+    if (isTimeForZ(this.rotationDegreesX)) {
+        this.rotationDegreesZ += 90;
+        console.log('added z', this.rotationDegreesZ);
+        this.__rotate()
+
+    }
+    else {
+        this.rotationDegreesY += 90;
+        this.__rotate()
+    }
+
 };
 Cube.prototype.rotateUp = function () {
     this.rotationDegreesX += 90;

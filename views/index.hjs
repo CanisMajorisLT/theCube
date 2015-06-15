@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+<textarea onclick="console.log(JSON.stringify(this.value))" name="nice" id="one" cols="30" rows="10"></textarea>
+<div class="playground"></div>
+<div class="playground2"></div>
+<div class="playground3"></div>
+
+
+
+<div class="two-d">
+    <div class="one">one</div>
+    <div class="two">two</div>
+</div>
+<script src="/javascripts/mainbundle.js"></script>
+</body>
+</html>
