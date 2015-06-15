@@ -15,6 +15,6 @@
     <div class="one">one</div>
     <div class="two">two</div>
 </div>
-<script src="/javascripts/mainbundle.js"></script>
+<script src="cubeproject/javascripts/mainbundle.js"></script>
 </body>
 </html>
