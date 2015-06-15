@@ -1,0 +1,1 @@
+The cube project related files are in [public/javascripts](https://github.com/CanisMajorisLT/theCube/tree/master/public/javascripts)
