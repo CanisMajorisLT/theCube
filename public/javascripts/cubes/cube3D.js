@@ -29,7 +29,7 @@ var Cube = module.exports = function (height, width, length) {
     }, 'perspective-wrap');
 
     this.shape = makeDiv({
-        transform: 'rotateX(0) rotateY(0) rotateZ(0)',
+        transform: 'rotateX(0) rotateY(0)',
         transition: 'all 450ms linear',
         position: 'relative',
         transformStyle: 'preserve-3d',
@@ -142,7 +142,7 @@ Cube.prototype.zoomIn = function () {
  * Rotates cube by updating its containers RotateX and RotateY values*/
 Cube.prototype.__rotate = function () {
     this.frontFaceDeactivate();
-    var transform = 'rotateX(' + this.rotationDegreesX + 'deg) rotateY(' + this.rotationDegreesY + 'deg) rotateZ(' + this.rotationDegreesZ + 'deg)';
+    var transform = 'rotateX(' + this.rotationDegreesX + 'deg) rotateY(' + this.rotationDegreesY + 'deg)';
     var timeoutVal = this.currentPosition === 'spinning' ? 20 : 100;
     if (this.currentPosition === 'still') this.zoomOut();
     setTimeout(function () {

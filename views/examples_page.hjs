@@ -9,6 +9,6 @@
 <body>
 <div id="react-container"></div>
 
-<script src="/jsx/compiledJSX.js"></script>
+<script src="/cubeproject/jsx/compiledJSX.js"></script>
 </body>
 </html>

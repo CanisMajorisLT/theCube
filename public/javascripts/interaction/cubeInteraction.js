@@ -1,3 +1,5 @@
+var utils = require('../utils');
+
 /**
  * Implements logic related to users interaction with cube
  * @param {object} cube*/
@@ -7,7 +9,9 @@ var CubeInteraction = module.exports = function (cube) {
     this.autoplayInProgres = false; // if true user interaction such as wheel/swipe is disabled;
     this.autoplayBlueprint = {};
 
-    this.swipeRotate = {initialized: false}
+    this.swipeRotate = {initialized: false};
+    this.middleScrollRotate = {initialized: false};
+    this.deviceOrientationRotate = {initialized: false}
 
 };
 
@@ -61,6 +65,7 @@ CubeInteraction.prototype.startAutorotate = function () {
         // if partNum is same as length, means that last part was done already.
         if (this.autoplayBlueprint.options.repeat === true) {
             this.autoplayBlueprint.currentPart = -1; // -1 because property exists so it will add 1
+            this.autoplayInProgres = false;
             setTimeout(this.startAutorotate.bind(this), repeatInterval)
         }
         else {
@@ -110,69 +115,94 @@ CubeInteraction.prototype.__startIntervalRotation = function (direction, times, 
     }.bind(this), inter)
 };
 
+/**
+ * Controls direction settings of particular rotations (middleScrollRotate, swipeRotate, deviceOrientationRotate)*/
+CubeInteraction.prototype.__controlDirection = function (direction, rotation) {
+    var oppositeDirections = {leftRight: 'upDown', upDown: 'leftRight'};
+    direction = direction || 'leftRight';
+    this[rotation][direction] = true;
+
+    if (this.cube.hasOwnProperty('perspectiveWrap' || rotation === 'middleScrollRotate')) {
+        // for 3D cube allow only one of the directions to be enabled
+        rotation[oppositeDirections[direction]] = false;
+    }
+
+    this[rotation][direction] = true;
+};
+
+
+/**
+ * Adds mobile interaction to cube.
+ * Cube can rotate when user moves his phones (changes it's orientation)*/
+CubeInteraction.prototype.addDeviceOrientationRotate = function (direction) {
+    this.__controlDirection(direction, 'deviceOrientationRotate');
+    if (!this.deviceOrientationRotate.initialized) {
+        this.__initDeviceOrientationRotate();
+        this.deviceOrientationRotate.initialized = true
+    }
+};
+
+CubeInteraction.prototype.__initDeviceOrientationRotate = function () {
+    var limitedHandleOrientationChange = utils.limit.call(this, handleOrientationChange, 600);
+    window.addEventListener('deviceorientation', limitedHandleOrientationChange)
+};
+
+var handleOrientationChange = function (orientation) {
+    if (!this.deviceOrientationRotate.lastGamma) this.deviceOrientationRotate.lastGamma = 0;
+    if (!this.deviceOrientationRotate.lastBeta) this.deviceOrientationRotate.lastBeta = 0;
+    var gamma = orientation.gamma; // Y axis
+    var beta = orientation.beta; // X axis
+
+    var displayOrientation = window.innerHeight > window.innerWidth ? 'longScreen' : 'wideScreen';
+
+    console.log('gamma', gamma, this.deviceOrientationRotate.lastGamma);
+    console.log('beta', beta, this.deviceOrientationRotate.lastBeta);
+    console.log(displayOrientation);
+
+
+    if (Math.abs(Math.abs(this.deviceOrientationRotate.lastGamma) - Math.abs(gamma)) >= 10) {
+        if (this.deviceOrientationRotate.lastGamma > gamma) {
+            if (displayOrientation === 'longScreen') this.deviceOrientationRotate.leftRight && this.cube.rotateRight();
+            else this.deviceOrientationRotate.upDown && this.cube.rotateDown();
+        }
+        else {
+            if (displayOrientation === 'longScreen') this.deviceOrientationRotate.leftRight && this.cube.rotateLeft();
+            else this.deviceOrientationRotate.upDown && this.cube.rotateUp();
+        }
+        this.deviceOrientationRotate.lastGamma = gamma
+    }
+
+    if (Math.abs(Math.abs(this.deviceOrientationRotate.lastBeta) - Math.abs(beta)) >= 10) {
+
+        if (this.deviceOrientationRotate.lastBeta > beta) {
+            if (displayOrientation === 'longScreen') this.deviceOrientationRotate.upDown && this.cube.rotateDown();
+            else this.deviceOrientationRotate.leftRight && this.cube.rotateRight();
+        }
+        else {
+            if (displayOrientation === 'longScreen') this.deviceOrientationRotate.upDown && this.cube.rotateUp();
+            else this.deviceOrientationRotate.leftRight && this.cube.rotateLeft();
+        }
+        this.deviceOrientationRotate.lastBeta = beta
+
+    }
+
+
+};
+
 
 /**
  * Adds mobile interaction to cube, user can rotate cube to any of the 4 [or ones that are implemented by cube API]
- *  sides by swiping*/
+ *  sides by swiping
+ *  @param {string} direction which way to rotate: upDown, leftRight*/
 CubeInteraction.prototype.addSwipeRotate = function (direction) {
-    var oppositeDirections = {leftRight: 'upDown', upDown: 'leftRight'};
-    direction = direction || 'leftRight';
-    this.swipeRotate[direction] = true;
-
-    if (this.cube.hasOwnProperty('perspectiveWrap')) {
-        // for 3D cube allow only one of the directions to be enabled
-        this.swipeRotate[oppositeDirections[direction]] = false;
-    }
-
-    this.swipeRotate[direction] = true;
+    this.__controlDirection(direction, 'swipeRotate');
     if (!this.swipeRotate.initialized) {
-        swipeRotate.call(this);
+        this._initSwipeRotate();
         this.swipeRotate.initialized = true;
     }
 };
 
-/**
- * Adds ability for user to rotate cube by mouse wheel
- * @param {string} direction which way to rotate: upDown, leftRight*/
-CubeInteraction.prototype.addMiddleScrollRotate = function (direction) {
-
-    // since FF has wheel event, while all others have mousewheel and wheel.
-    var wheelEvent = 'onwheel' in window ? 'wheel' : 'mousewheel';
-
-    this.cube.shape.addEventListener(wheelEvent, function (wheelEvent) {
-        if (this.autoplayInProgres) {
-            return
-        }
-
-        wheelEvent.preventDefault();
-
-        var value = wheelEvent.deltaY;
-
-        if (value > 0) {
-            if (direction === 'leftRight') {
-                this.cube.rotateRight()
-            }
-            else {
-                this.cube.rotateUp()
-            }
-        }
-        else {
-            if (direction === 'leftRight') {
-                this.cube.rotateLeft()
-            }
-            else {
-                this.cube.rotateDown()
-            }
-
-        }
-
-
-    }.bind(this))
-};
-
-
-var swipeRotate = function (direction) {
-//TODO ideti ri cia specifikavima i kuria puse, nes i visur leidziant - isibuginti gali del userio scrollinimo
+CubeInteraction.prototype._initSwipeRotate = function () {
     var startX;
     var startY;
     this.cube.shape.addEventListener('touchstart', function (touchEvent) {
@@ -181,15 +211,21 @@ var swipeRotate = function (direction) {
         }
         startX = touchEvent.touches[0].clientX;
         startY = touchEvent.touches[0].clientY;
-    });
+    }.bind(this));
 
     this.cube.shape.addEventListener('touchmove', function (touchEvent) {
+        touchEvent.preventDefault();
         if (!startX || !startY) {
             return
         }
 
+
         var diffX = startX - touchEvent.touches[0].clientX;
         var diffY = startY - touchEvent.touches[0].clientY;
+
+        if (Math.abs(diffX) < 10 || Math.abs(diffY) < 10) {
+            return
+        }
 
 
         if (Math.abs(diffX) > Math.abs(diffY)) {
@@ -216,6 +252,54 @@ var swipeRotate = function (direction) {
         // set to null, so only touchmove is ignored after it fires once
         startX = null;
         startY = null;
+
+    }.bind(this))
+};
+
+
+/**
+ * Adds ability for user to rotate cube by mouse wheel
+ * @param {string} direction which way to rotate: upDown, leftRight*/
+CubeInteraction.prototype.addMiddleScrollRotate = function (direction) {
+    this.__controlDirection(direction, 'middleScrollRotate');
+
+    if (!this.middleScrollRotate.initialized) {
+        this.__initMiddleScrollRotate();
+        this.middleScrollRotate.initialized = true
+    }
+
+};
+CubeInteraction.prototype.__initMiddleScrollRotate = function () {
+    // since FF has wheel event, while all others have mousewheel and wheel.
+    var wheelEvent = 'onwheel' in window ? 'wheel' : 'mousewheel';
+
+    this.cube.shape.addEventListener(wheelEvent, function (wheelEvent) {
+        if (this.autoplayInProgres) {
+            return
+        }
+
+        wheelEvent.preventDefault();
+
+        var value = wheelEvent.deltaY;
+
+        if (value > 0) {
+
+            if (this.middleScrollRotate.leftRight) {
+                this.cube.rotateRight()
+            }
+            else if (this.middleScrollRotate.upDown) {
+                this.cube.rotateUp()
+            }
+        }
+        else {
+            if (this.middleScrollRotate.leftRight) {
+                this.cube.rotateLeft()
+            }
+            else if (this.middleScrollRotate.upDown) {
+                this.cube.rotateDown()
+            }
+        }
+
 
     }.bind(this))
 };
